@@ -1,0 +1,95 @@
+{
+  "compilerOptions": {
+    "jsx": "react-jsx",
+
+    "module": "ES2022",
+
+    // From what I understand reading the docs "classic" was introduced first and "classic" is by default(except when
+    // "module": "commonjs") because of backwards compatibility.
+    //
+    // From the docs: "node module resolution is the most-commonly used in the TypeScript community and is recommended
+    // for most projects."
+    "moduleResolution": "node",
+
+    // Changed from "ES2020" to "ES2019" when updating between TypeScript 3.7 to 3.8 because webpack
+    // build was throwing an error which was caused by this issue:
+    // https://github.com/TypeStrong/ts-loader/issues/1061.
+    "target": "ES2021",
+
+    "types": ["vite/client"],
+
+    // If `typeRoots` are not provided TypeScript will perform a magic algorithm loading the first type of `node` that
+    // it encounters which can cause unexpected behavior and loading of the wrong types.
+    //
+    // We first try to load types from Electron because they are with priority as we are building an Electron app and we
+    // want the dependencies that Electron is using. At the time of this writing the only dependency Electron has inside
+    // the `@types` folder is `node`.
+    "typeRoots": [
+      "node_modules/electron/node_modules/@types",
+      "node_modules/@types",
+      "./app/typings"
+    ],
+
+    // 🐛 This fixes auto importing of local_modules. Without this TypeScript will import it like
+    // `../../local_modules/path-fix` instead of `path-fix`. Tried using
+    // `"paths": { "*": ["*", "./app/local_modules"] }` but WebStorm didn't work with it(specifically relative imports
+    // in parent folders).
+    "baseUrl": "./app/local_modules",
+
+    // Allows modules which were exported using `module.exports` or `export = ` to be imported using
+    // `import module from 'module'`.
+    // - 😡 adds helper functions that increase bundle size. quote from documentation: "Emit __importStar and
+    //   __importDefault helpers for runtime babel ecosystem compatibility and enable --allowSyntheticDefaultImports for
+    //   typesystem compatibility."
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+
+    // Enable all strict type checking options. Enabling `strict` enables:
+    // - noImplicitAny
+    // - noImplicitThis
+    // - alwaysStrict
+    // - strictBindCallApply
+    // - strictNullChecks
+    // - strictFunctionTypes
+    // - strictPropertyInitialization
+    // - useUnknownInCatchVariables
+    "strict": true,
+
+    // Unused function parameters are reported as warnings.
+    //
+    // Use underscore in front of a variable to disable the error. Example: (_e, value)
+    "noUnusedParameters": true,
+
+    "noUnusedLocals": true,
+    "allowUnreachableCode": false,
+    "noFallthroughCasesInSwitch": true,
+    "forceConsistentCasingInFileNames": true,
+
+    // - ℹ️ https://www.typescriptlang.org/tsconfig#isolatedModules
+    // - 😃 Deno requires "isolatedModules" to be set to `true`
+    // - 😃 the stricter version - I always prefer the stricter version
+    // - 😃 probably the future
+    "isolatedModules": true,
+
+    "noImplicitOverride": true
+
+    // we use Webpack
+    // disabled because it throws an error when we want to create source maps files for
+    // uploading to Sentry
+    // "noEmit": true,
+
+    // todo: explore this option
+    // "exactOptionalPropertyTypes": true,
+
+    // #experiment
+    // When you do `keyof T` instead of returning `string | number` it returns only `string` when
+    // the object is `{ [key: string ]: any }`.
+    //
+    // Removed because `keyof { [key: number]: any }` returns never.
+    // "keyofStringsOnly": true
+
+    // Disabled because it has bugs which prevents the app from starting.
+    // "useDefineForClassFields": true,
+  },
+  "exclude": ["scripts/vite.ts"]
+}
